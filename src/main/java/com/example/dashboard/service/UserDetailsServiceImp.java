@@ -17,22 +17,32 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-public class UserDetailsServiceImp implements UserDetailsService {
+public class UserDetailsServiceImp {
 
     @Autowired
     UserRepository userRepo;
 
-    public UserDetailsServiceImp(UserRepository userRepo) {
-        this.userRepo = userRepo;
+    public UserDetailsService userDetailsService() {
+        return new UserDetailsService() {
+            @Override
+            public UserDetails loadUserByUsername(String username) {
+                return (UserDetails) userRepo.findByUserName(username)
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+            }
+        };
     }
 
-    @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserEntity user = userRepo.findByUserName(username).orElseThrow(()-> new UsernameNotFoundException("User not found!"));
-        return new User(user.getUserName(), user.getPassword(), getAuthorizedRoleMap(user.getRoles()));
-    }
-
-    private Collection<GrantedAuthority> getAuthorizedRoleMap(List<Role> roles){
-        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRole().name())).collect(Collectors.toList());
-    }
+//    public UserDetailsServiceImp(UserRepository userRepo) {
+//        this.userRepo = userRepo;
+//    }
+//
+//    @Override
+//    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+//        UserEntity user = userRepo.findByUserName(username).orElseThrow(()-> new UsernameNotFoundException("User not found!"));
+//        return new User(user.getUserName(), user.getPassword(), getAuthorizedRoleMap(user.getRoles()));
+//    }
+//
+//    private Collection<GrantedAuthority> getAuthorizedRoleMap(List<Role> roles){
+//        return roles.stream().map(role -> new SimpleGrantedAuthority(role.getRole().name())).collect(Collectors.toList());
+//    }
 }
