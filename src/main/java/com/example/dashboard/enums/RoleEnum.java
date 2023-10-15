@@ -5,7 +5,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public enum RoleEnum {
     USER("User"),
-    ADMIN("Admin");
+    ADMIN("Admin"),
+    CLIENT_USER("Client_user");
 
     private String role;
 

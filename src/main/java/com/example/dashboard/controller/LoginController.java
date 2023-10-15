@@ -2,6 +2,7 @@ package com.example.dashboard.controller;
 
 import com.example.dashboard.LoginDTO;
 import com.example.dashboard.RegisterDTO;
+import com.example.dashboard.entity.ClientUserDTO;
 import com.example.dashboard.repository.RoleRepository;
 import com.example.dashboard.repository.UserRepository;
 import com.example.dashboard.service.LoginService;
@@ -21,11 +22,15 @@ public class LoginController {
     @PostMapping("/register")
     public ResponseEntity<String> registerUser(@RequestBody RegisterDTO registerDTO){
         return loginService.registerUser(registerDTO);
-
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO){
         return loginService.loginUser(loginDTO);
+    }
+
+    @PostMapping("/register-client")
+    public ResponseEntity<?> registerClientUser(@RequestBody ClientUserDTO clientUserDTO){
+        return loginService.registerClientUser(clientUserDTO);
     }
 }

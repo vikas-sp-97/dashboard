@@ -3,6 +3,7 @@ package com.example.dashboard.service;
 import com.example.dashboard.LoginDTO;
 import com.example.dashboard.RegisterDTO;
 import com.example.dashboard.entity.AuthResponseDTO;
+import com.example.dashboard.entity.ClientUserDTO;
 import com.example.dashboard.entity.Role;
 import com.example.dashboard.entity.UserEntity;
 import com.example.dashboard.enums.ActiveStatus;
@@ -68,5 +69,28 @@ public class LoginService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password."));
         var token = jwtService.generateToken(user);
         return ResponseEntity.status(HttpStatus.OK).body(new AuthResponseDTO(token));
+    }
+
+    public ResponseEntity<String> registerClientUser(ClientUserDTO clientUserDTO) {
+        if(userRepository.existsByUserName(clientUserDTO.getUsername())){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Username already exists!");
+        }
+
+        UserEntity user = new UserEntity();
+        user.setUserName(clientUserDTO.getUsername());
+        System.out.println("----------\n");
+        Role role = roleRepository.findByRole(RoleEnum.CLIENT_USER).get();
+        System.out.println(role);
+        user.setRoles(Collections.singletonList(role));
+        if(clientUserDTO.getActiveStatus() != null){
+            if(clientUserDTO.getActiveStatus().toString().equalsIgnoreCase(ActiveStatus.ACTIVE.name()))
+                user.setActiveStatus(ActiveStatus.ACTIVE);
+        }else{
+            user.setActiveStatus(ActiveStatus.INACTIVE);
+        }
+
+        userRepository.save(user);
+        return ResponseEntity.status(HttpStatus.OK).body("Client user registered successfully!");
+
     }
 }
