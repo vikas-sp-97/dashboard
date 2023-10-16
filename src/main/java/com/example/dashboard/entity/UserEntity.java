@@ -1,6 +1,8 @@
 package com.example.dashboard.entity;
 
 import com.example.dashboard.enums.ActiveStatus;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -16,7 +18,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@ToString
 @Table(name = "users")
 public class UserEntity implements UserDetails {
 
@@ -25,7 +26,6 @@ public class UserEntity implements UserDetails {
     @Column(name = "user_id")
     private int id;
 
-//    @NonNull
     @Column(unique = true)
     private String userName;
 
@@ -38,7 +38,12 @@ public class UserEntity implements UserDetails {
     @JoinTable(name = "user_roles",
             joinColumns =@JoinColumn(name="user_id", referencedColumnName="user_id"),
             inverseJoinColumns =@JoinColumn(name="role_id", referencedColumnName="role_id"))
+    @JsonManagedReference
     private List<Role> roles;
+
+//    @OneToMany(mappedBy = "userEntity", fetch = FetchType.LAZY)
+//    @JsonManagedReference
+//    private List<Token> tokens;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

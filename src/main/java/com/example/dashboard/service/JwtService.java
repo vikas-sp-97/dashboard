@@ -20,7 +20,7 @@ public class JwtService {
 
     String jwtSecretKey = "48a868a4042f634ac04a117f00a87202131dd7c46c4b32c4acb3edc5e15f4511";
 
-    Long jwtExpirationMs = 1000000L;
+    Long jwtExpirationMs = 100000000L;
 
     public String extractUserName(String token) {
         return extractClaim(token, Claims::getSubject);

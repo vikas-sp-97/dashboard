@@ -1,5 +1,7 @@
 package com.example.dashboard.security;
 
+import com.example.dashboard.entity.Token;
+import com.example.dashboard.repository.TokenRepository;
 import com.example.dashboard.service.JwtService;
 import com.example.dashboard.service.UserDetailsServiceImp;
 import jakarta.servlet.FilterChain;
@@ -18,6 +20,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Component
 public class JwtAuthFilter extends OncePerRequestFilter {
@@ -28,27 +31,28 @@ public class JwtAuthFilter extends OncePerRequestFilter {
     @Autowired
     UserDetailsServiceImp userDetailsImp;
 
+    @Autowired
+    TokenRepository tokenRepository;
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        System.out.println(authHeader+"------------\n");
-        if (!(
-                StringUtils.hasText(authHeader) ||
-                StringUtils.startsWithIgnoreCase(authHeader, "Bearer ")
-        )) {
+        if (!(StringUtils.hasText(authHeader) ||
+                StringUtils.startsWithIgnoreCase(authHeader, "Bearer ")))
+        {
             filterChain.doFilter(request, response);
             return;
         }
         try{
             String token = authHeader.substring(7);
-    //        System.out.println(token);
             String username = jwtService.extractUserName(token);
             UserDetails userDetails = userDetailsImp.userDetailsService().loadUserByUsername(username);
 
-            System.out.println(userDetails.getAuthorities());
-            System.out.println(userDetails.getAuthorities().getClass().getName());
+            Optional<Token> tokenFromDb = tokenRepository.findByToken(token);
 
-            if(StringUtils.hasText(token) && jwtService.isTokenValid(token, userDetails)){
+
+            if(StringUtils.hasText(token) && jwtService.isTokenValid(token, userDetails)
+                && !(tokenFromDb.get().isExpired() && tokenFromDb.get().isRevoked())){
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
